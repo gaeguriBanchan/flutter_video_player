@@ -35,8 +35,11 @@ class _HomeScreenState extends State<HomeScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          _Logo(
-            onTap: onNewVideoPressed,
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20),
+            child: _Logo(
+              onTap: onNewVideoPressed,
+            ),
           ),
           const SizedBox(
             height: 30,
@@ -65,8 +68,9 @@ class _HomeScreenState extends State<HomeScreen> {
         begin: Alignment.topCenter,
         end: Alignment.bottomCenter,
         colors: [
-          Color(0xFF2A3A7C),
           Color(0xFF000118),
+          Color(0xFF2A3A7C),
+          Color(0xFFFC5658),
         ],
       ),
     );
@@ -110,7 +114,7 @@ class _Logo extends StatelessWidget {
   Widget build(BuildContext context) {
     return GestureDetector(
       onTap: onTap,
-      child: Image.asset('asset/image/logo.png'),
+      child: Image.asset('asset/image/logo_play.png'),
     );
   }
 }
