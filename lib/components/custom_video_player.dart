@@ -18,6 +18,7 @@ class CustomVideoPlayer extends StatefulWidget {
 
 class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
   VideoPlayerController? videoController;
+  Duration currentPosition = const Duration();
 
   @override
   void initState() {
@@ -32,6 +33,14 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
     );
 
     await videoController!.initialize();
+
+    videoController!.addListener(() async {
+      final currentPosition = videoController!.value.position;
+
+      setState(() {
+        this.currentPosition = currentPosition;
+      });
+    });
 
     setState(() {});
   }
@@ -56,21 +65,30 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
             onForwardPressed: onForwardPressed,
             isPlaying: videoController!.value.isPlaying,
           ),
-          Positioned(
-            right: 0,
-            child: IconButton(
-              onPressed: () {},
-              iconSize: 30.0,
-              color: Colors.white,
-              icon: const Icon(
-                Icons.photo_camera_back,
-              ),
-            ),
+          _NewVideo(
+            onPressed: onNewVideoPressed,
           ),
+          _SliderBottom(
+            currentPosition: currentPosition,
+            maxPosition: videoController!.value.duration,
+            onSliderChanged: onSliderChanged,
+          )
         ],
       ),
     );
   }
+
+  void onSliderChanged(double val) {
+    setState(() {
+      videoController!.seekTo(
+        Duration(
+          seconds: val.toInt(),
+        ),
+      );
+    });
+  }
+
+  void onNewVideoPressed() {}
 
   void onReversePressed() {
     final currentPosition = videoController!.value.position;
@@ -106,6 +124,27 @@ class _CustomVideoPlayerState extends State<CustomVideoPlayer> {
     }
 
     videoController!.seekTo(position);
+  }
+}
+
+class _NewVideo extends StatelessWidget {
+  const _NewVideo({required this.onPressed});
+
+  final VoidCallback onPressed;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      right: 0,
+      child: IconButton(
+        onPressed: onPressed,
+        iconSize: 30.0,
+        color: Colors.white,
+        icon: const Icon(
+          Icons.photo_camera_back,
+        ),
+      ),
+    );
   }
 }
 
@@ -156,6 +195,54 @@ class _Controls extends StatelessWidget {
       iconSize: 30.0,
       color: Colors.white,
       icon: Icon(iconData),
+    );
+  }
+}
+
+class _SliderBottom extends StatelessWidget {
+  const _SliderBottom({
+    required this.currentPosition,
+    required this.maxPosition,
+    required this.onSliderChanged,
+  });
+
+  final Duration currentPosition;
+  final Duration maxPosition;
+  final ValueChanged<double> onSliderChanged;
+
+  @override
+  Widget build(BuildContext context) {
+    return Positioned(
+      bottom: 0,
+      left: 0,
+      right: 0,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 8.0),
+        child: Row(
+          children: [
+            Text(
+              '${currentPosition.inMinutes}:${(currentPosition.inSeconds % 60).toString().padLeft(2, '0')}',
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            ),
+            Expanded(
+              child: Slider(
+                max: maxPosition.inSeconds.toDouble(),
+                min: 0,
+                value: currentPosition.inSeconds.toDouble(),
+                onChanged: onSliderChanged,
+              ),
+            ),
+            Text(
+              '${maxPosition.inMinutes}:${(maxPosition.inSeconds % 60).toString().padLeft(2, '0')}',
+              style: const TextStyle(
+                color: Colors.white,
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
